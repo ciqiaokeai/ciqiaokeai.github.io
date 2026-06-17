@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Hacker Control Panel</title>
+
+<style>
+/* =========================
+   全局黑客风基础
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Consolas","Microsoft YaHei",monospace;
+    user-select: none;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: radial-gradient(circle at 20% 20%, #0a0f0a, #000 60%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 动态网格背景 */
+body::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(0,255,120,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,120,0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: moveGrid 8s linear infinite;
+}
+
+@keyframes moveGrid {
+    from { transform: translateY(0); }
+    to { transform: translateY(40px); }
+}
+
+/* =========================
+   缩放容器
+========================= */
+#scale-wrapper {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    transform-origin:center;
+}
+
+/* =========================
+   主面板（黑客金属风）
+========================= */
+.panel {
+    width: 380px;
+    border-radius: 18px;
+    position: relative;
+    background: rgba(10, 10, 10, 0.85);
+    border: 1px solid rgba(0,255,120,0.25);
+    box-shadow:
+        0 0 25px rgba(0,255,120,0.15),
+        inset 0 0 20px rgba(0,255,120,0.05);
+    overflow: hidden;
+}
+
+/* 外发光扫描线 */
+.panel::before {
+    content:"";
+    position:absolute;
+    width:100%;
+    height:2px;
+    background: rgba(0,255,120,0.6);
+    top:0;
+    left:0;
+    animation: scan 3s linear infinite;
+}
+
+@keyframes scan {
+    0% { top:0; opacity:0.2; }
+    50% { opacity:1; }
+    100% { top:100%; opacity:0.2; }
+}
+
+/* 背景图降低亮度 */
+.panel-bg {
+    position:absolute;
+    width:100%;
+    height:100%;
+    filter: brightness(0.25) contrast(1.2);
+    z-index:0;
+}
+
+/* =========================
+   glass层（弱化透明）
+========================= */
+.liquid-glass {
+    position: relative;
+    z-index: 1;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px);
+    border-radius: 18px;
+}
+
+/* =========================
+   内容
+========================= */
+.content {
+    padding: 22px;
+}
+
+/* 标题 */
+.title {
+    text-align:center;
+    font-size:20px;
+    letter-spacing:3px;
+    color:#00ff9d;
+    text-shadow:0 0 10px rgba(0,255,120,0.8);
+    margin-bottom:16px;
+}
+
+/* =========================
+   Tabs 黑客终端风
+========================= */
+.tabs {
+    display:flex;
+    position:relative;
+    padding:4px;
+    border:1px solid rgba(0,255,120,0.2);
+    background: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    margin-bottom: 14px;
+}
+
+.tab-indicator {
+    position:absolute;
+    top:4px;
+    bottom:4px;
+    left:4px;
+    background: rgba(0,255,120,0.15);
+    border:1px solid rgba(0,255,120,0.4);
+    border-radius:8px;
+    transition:0.3s;
+}
+
+.tab {
+    flex:1;
+    background:none;
+    border:none;
+    color:#888;
+    font-size:13px;
+    padding:8px;
+    z-index:1;
+    cursor:pointer;
+}
+
+.tab.active {
+    color:#00ff9d;
+    text-shadow:0 0 6px #00ff9d;
+}
+
+/* =========================
+   内容区
+========================= */
+.tab-content {
+    display:none;
+    height:170px;
+    overflow-y:auto;
+    padding-right:4px;
+}
+
+.tab-content.active {
+    display:block;
+}
+
+/* 滚动条 */
+.tab-content::-webkit-scrollbar {
+    width:3px;
+}
+.tab-content::-webkit-scrollbar-thumb {
+    background:#00ff9d55;
+}
+
+/* =========================
+   按钮（霓虹边框）
+========================= */
+.grid {
+    display:grid;
+    grid-template-columns: repeat(2,1fr);
+    gap:8px;
+}
+
+.btn {
+    background: rgba(0,0,0,0.6);
+    border:1px solid rgba(0,255,120,0.25);
+    color:#00ff9d;
+    padding:10px;
+    font-size:12px;
+    border-radius:10px;
+    text-align:center;
+    transition:0.15s;
+    position:relative;
+    overflow:hidden;
+}
+
+/* hover扫描效果 */
+.btn::before {
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    left:-100%;
+    top:0;
+    background: linear-gradient(90deg,transparent,rgba(0,255,120,0.2),transparent);
+    transition:0.4s;
+}
+
+.btn:hover::before {
+    left:100%;
+}
+
+.btn:active {
+    transform: scale(0.92);
+    box-shadow:0 0 12px rgba(0,255,120,0.6);
+}
+
+/* footer */
+.footer {
+    text-align:center;
+    margin-top:12px;
+    font-size:9px;
+    color:#00ff9d55;
+    letter-spacing:2px;
+}
+
+/* hidden svg */
+.svg-filter { display:none; }
+</style>
+</head>
+
+<body>
+
+<div id="scale-wrapper">
+<div class="panel" id="panel">
+
+<div class="panel-bg" id="panelBg"></div>
+
+<div class="liquid-glass">
+<div class="content">
+
+<div class="title">HACKER CONTROL</div>
+
+<div class="tabs" id="tabsContainer">
+    <div class="tab-indicator" id="tabIndicator"></div>
+    <button class="tab active" onclick="switchTab(this,'account')">ACCOUNT</button>
+    <button class="tab" onclick="switchTab(this,'resource')">RESOURCE</button>
+    <button class="tab" onclick="switchTab(this,'feature')">FEATURE</button>
+</div>
+
+<!-- ACCOUNT -->
+<div class="tab-content active" id="account">
+<div class="grid">
+<button class="btn" onclick="window.JsBridge.exportAccount()">EXPORT</button>
+<button class="btn" onclick="window.JsBridge.importAccount()">IMPORT</button>
+<button class="btn" onclick="window.JsBridge.toggleCookieLogin()">COOKIE LOGIN</button>
+<button class="btn" onclick="window.JsBridge.toggleCookieExport()">COOKIE DUMP</button>
+</div>
+</div>
+
+<!-- RESOURCE -->
+<div class="tab-content" id="resource">
+<div class="grid">
+<button class="btn" onclick="window.JsBridge.loadMaterial()">LOAD TEX</button>
+<button class="btn" onclick="window.JsBridge.extractMaterial()">UNPACK</button>
+<button class="btn" onclick="window.JsBridge.toggleXray()">X-RAY</button>
+<button class="btn" onclick="window.JsBridge.deleteEN()">CLEAN</button>
+<button class="btn" onclick="window.JsBridge.selectBranch()">BRANCH</button>
+</div>
+</div>
+
+<!-- FEATURE -->
+<div class="tab-content" id="feature">
+<div class="grid">
+<button class="btn" onclick="window.JsBridge.FPSdisplay()">FPS</button>
+<button class="btn" onclick="window.JsBridge.toggleFreeCam()">FREECAM</button>
+<button class="btn" onclick="window.JsBridge.toggleNightVision()">NV MODE</button>
+<button class="btn" onclick="window.JsBridge.toggleDepthOfField()">DOF</button>
+<button class="btn" onclick="window.JsBridge.summonVehicle()">MOUNT</button>
+<button class="btn" onclick="window.JsBridge.loadPyScript()">TP MENU</button>
+<button class="btn" onclick="window.JsBridge.autofish()">AUTO FISH</button>
+<button class="btn" onclick="window.JsBridge.toggleHitEffect()">HIT FX</button>
+<button class="btn" onclick="window.JsBridge.toggleHeartTrail()">TRAIL</button>
+<button class="btn" onclick="window.JsBridge.openScriptLoader()">LOADER</button>
+<button class="btn" onclick="window.JsBridge.toggleAutoTool()">AUTO TOOL</button>
+<button class="btn" onclick="window.JsBridge.startServerIpCapture()">IP TRACE</button>
+</div>
+</div>
+
+<div class="footer">SYSTEM :: ONLINE</div>
+
+</div>
+</div>
+</div>
+</div>
+
+<script>
+const scaleWrapper = document.getElementById('scale-wrapper');
+const panel = document.getElementById('panel');
+
+function autoScale(){
+    scaleWrapper.style.transform = "scale(1)";
+    const s = Math.min(
+        window.innerWidth / panel.offsetWidth * 0.9,
+        window.innerHeight / panel.offsetHeight * 0.9,
+        1
+    );
+    scaleWrapper.style.transform = `scale(${s})`;
+}
+
+function switchTab(el,id){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+
+    el.classList.add('active');
+    document.getElementById(id).classList.add('active');
+
+    const ind = document.getElementById('tabIndicator');
+    ind.style.left = el.offsetLeft + "px";
+    ind.style.width = el.offsetWidth + "px";
+
+    autoScale();
+}
+
+window.onload = () => {
+    autoScale();
+    window.addEventListener('resize', autoScale);
+    document.querySelector('.tab.active').click();
+};
+</script>
+
+</body>
+</html>
