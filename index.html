@@ -1,230 +1,173 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<div id="scale-wrapper">
+    <div class="panel" id="panel">
+        <div class="glass">
+            <div class="title">HACKER CONTROL</div>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-    <title>Hacker Control Panel</title>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box;font-family:Consolas,"Microsoft YaHei",monospace;user-select:none}
-        body{width:100vw;height:100vh;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
-        body:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(0,255,120,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,120,.05) 1px,transparent 1px);background-size:38px 38px;animation:grid 8s linear infinite}
-        body:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(0,255,120,.18),transparent 25%),repeating-linear-gradient(to bottom,rgba(255,255,255,.025) 0 1px,transparent 1px 4px)}
-        @keyframes grid{to{transform:translateY(38px)}}
-        #matrix{position:absolute;inset:0;opacity:.28}
-        #scale-wrapper{position:relative;z-index:2;transform-origin:center}
-        .panel{width:500px;border-radius:22px;position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(3,15,9,.96),rgba(0,0,0,.95));border:1px solid rgba(0,255,157,.35);box-shadow:0 0 35px rgba(0,255,157,.22),inset 0 0 28px rgba(0,255,157,.08)}
-        .panel:before{content:"";position:absolute;left:0;top:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,#00ff9d,transparent);animation:scan 3s linear infinite;z-index:5}
-        @keyframes scan{0%{top:0;opacity:.2}50%{opacity:1}100%{top:100%;opacity:.2}}
-        .glass{position:relative;z-index:1;background:rgba(0,0,0,.62);backdrop-filter:blur(8px);padding:20px}
-        .title{text-align:center;color:#00ff9d;font-size:21px;letter-spacing:4px;text-shadow:0 0 10px #00ff9d,0 0 25px rgba(0,255,157,.5);margin-bottom:12px}
-        .status{display:flex;justify-content:space-between;color:rgba(0,255,157,.6);font-size:10px;margin-bottom:14px;letter-spacing:1px}
-        .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#00ff9d;box-shadow:0 0 10px #00ff9d;margin-right:6px;animation:pulse 1.4s infinite}
-        @keyframes pulse{50%{transform:scale(1.25);opacity:1}0%,100%{opacity:.45}}
-        .layout{display:flex;gap:14px}
-        .tabs{width:112px;display:flex;flex-direction:column;gap:9px;padding:9px;border:1px solid rgba(0,255,157,.25);border-radius:15px;background:linear-gradient(180deg,rgba(0,255,157,.08),rgba(0,0,0,.5))}
-        .tab{height:46px;border-radius:11px;border:1px solid rgba(0,255,157,.24);background:rgba(0,0,0,.6);color:rgba(0,255,157,.65);font-size:12px;letter-spacing:1px;cursor:pointer;transition:.22s;overflow:hidden;position:relative}
-        .tab span{display:block;font-size:9px;color:rgba(0,255,157,.35);margin-top:3px}
-        .tab:before,.btn:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(0,255,157,.25),transparent);transform:translateX(-120%);transition:.35s}
-        .tab:hover:before,.btn:hover:before{transform:translateX(120%)}
-        .tab:hover{color:#00ff9d;border-color:rgba(0,255,157,.65);box-shadow:0 0 14px rgba(0,255,157,.25)}
-        .tab.active{color:#001f13;background:linear-gradient(135deg,#00ff9d,#00b86b);border-color:#8dffd6;box-shadow:0 0 16px rgba(0,255,157,.6),inset 0 0 10px rgba(255,255,255,.25)}
-        .tab.active span{color:rgba(0,20,12,.7)}
-        .right{flex:1;min-width:0}
-        .module{height:34px;margin-bottom:9px;padding:0 12px;border:1px solid rgba(0,255,157,.2);border-radius:12px;background:rgba(0,0,0,.42);display:flex;align-items:center;justify-content:space-between;color:#00ff9d;font-size:12px;letter-spacing:2px}
-        .module small{font-size:9px;color:rgba(0,255,157,.42)}
-        .area{border:1px solid rgba(0,255,157,.18);border-radius:15px;padding:10px;background:rgba(0,0,0,.4)}
-        .tab-content{display:none;height:190px;overflow-y:auto;padding-right:4px}
-        .tab-content.active{display:block}
-        .tab-content::-webkit-scrollbar{width:4px}
-        .tab-content::-webkit-scrollbar-thumb{background:rgba(0,255,157,.45);border-radius:10px}
-        .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
-        .btn{height:43px;position:relative;overflow:hidden;border-radius:12px;border:1px solid rgba(0,255,157,.3);background:linear-gradient(180deg,rgba(0,255,157,.09),rgba(0,0,0,.74));color:#00ff9d;font-size:12px;letter-spacing:1px;cursor:pointer;transition:.18s;box-shadow:inset 0 0 12px rgba(0,255,157,.05)}
-        .btn:hover{color:#c8ffe8;border-color:rgba(0,255,157,.78);transform:translateY(-1px);box-shadow:0 0 15px rgba(0,255,157,.28),inset 0 0 15px rgba(0,255,157,.12)}
-        .btn:active,.btn.running{transform:scale(.94);background:linear-gradient(135deg,#00ff9d,#00bd75);color:#001f13;box-shadow:0 0 20px rgba(0,255,157,.65)}
-        .console{height:62px;margin-top:12px;padding:8px 10px;border:1px solid rgba(0,255,157,.18);border-radius:12px;background:rgba(0,0,0,.55);color:rgba(0,255,157,.65);font-size:10px;line-height:15px;overflow:hidden}
-        .log:before{content:"> ";color:#00ff9d}
-        .footer{text-align:center;margin-top:12px;font-size:9px;color:rgba(0,255,157,.45);letter-spacing:3px}
-        @media(max-width:520px){.panel{width:500px}}
-    </style>
-</head>
-
-<body>
-    <canvas id="matrix"></canvas>
-
-    <div id="scale-wrapper">
-        <div class="panel" id="panel">
-            <div class="glass">
-                <div class="title">HACKER CONTROL</div>
-
-                <div class="status">
-                    <div><span class="dot"></span>CORE ONLINE</div>
-                    <div id="clock">--:--:--</div>
-                </div>
-
-                <div class="layout">
-                    <div class="tabs">
-                        <button class="tab active" onclick="switchTab(this,'account','ACCOUNT MODULE')">ACCOUNT<span>IDENTITY</span></button>
-                        <button class="tab" onclick="switchTab(this,'resource','RESOURCE MODULE')">RESOURCE<span>ASSETS</span></button>
-                        <button class="tab" onclick="switchTab(this,'feature','FEATURE MODULE')">FEATURE<span>SYSTEM</span></button>
-                    </div>
-
-                    <div class="right">
-                        <div class="module">
-                            <div id="moduleTitle">ACCOUNT MODULE</div><small>ACCESS :: ROOT</small>
-                        </div>
-
-                        <div class="area">
-                            <div class="tab-content active" id="account">
-                                <div class="grid">
-                                    <button class="btn" onclick="runBridge(this,'exportAccount')">EXPORT</button>
-                                    <button class="btn" onclick="runBridge(this,'importAccount')">IMPORT</button>
-                                    <button class="btn" onclick="runBridge(this,'toggleCookieLogin')">COOKIE LOGIN</button>
-                                    <button class="btn" onclick="runBridge(this,'toggleCookieExport')">COOKIE DUMP</button>
-                                </div>
-                            </div>
-
-                            <div class="tab-content" id="resource">
-                                <div class="grid">
-                                    <button class="btn" onclick="runBridge(this,'loadMaterial')">LOAD TEX</button>
-                                    <button class="btn" onclick="runBridge(this,'extractMaterial')">UNPACK</button>
-                                    <button class="btn" onclick="runBridge(this,'toggleXray')">X-RAY</button>
-                                    <button class="btn" onclick="runBridge(this,'deleteEN')">CLEAN</button>
-                                    <button class="btn" onclick="runBridge(this,'selectBranch')">BRANCH</button>
-                                </div>
-                            </div>
-
-                            <div class="tab-content" id="feature">
-                                <div class="grid">
-                                    <button class="btn" onclick="runBridge(this,'FPSdisplay')">FPS</button>
-                                    <button class="btn" onclick="runBridge(this,'toggleFreeCam')">FREECAM</button>
-                                    <button class="btn" onclick="runBridge(this,'toggleNightVision')">NV MODE</button>
-                                    <button class="btn" onclick="runBridge(this,'toggleDepthOfField')">DOF</button>
-                                    <button class="btn" onclick="runBridge(this,'summonVehicle')">MOUNT</button>
-                                    <button class="btn" onclick="runBridge(this,'loadPyScript')">TP MENU</button>
-                                    <button class="btn" onclick="runBridge(this,'autofish')">AUTO FISH</button>
-                                    <button class="btn" onclick="runBridge(this,'toggleHitEffect')">HIT FX</button>
-                                    <button class="btn" onclick="runBridge(this,'toggleHeartTrail')">TRAIL</button>
-                                    <button class="btn" onclick="runBridge(this,'openScriptLoader')">LOADER</button>
-                                    <button class="btn" onclick="runBridge(this,'toggleAutoTool')">AUTO TOOL</button>
-                                    <button class="btn" onclick="runBridge(this,'startServerIpCapture')">IP TRACE</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="console" id="console">
-                            <div class="log">System initialized.</div>
-                            <div class="log">Waiting for command.</div>
-                            <div class="log">JsBridge checking...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="footer">SYSTEM :: ONLINE :: SECURE PANEL</div>
+            <div class="status">
+                <div><span class="dot"></span>CORE ONLINE</div>
+                <div id="clock">--:--:--</div>
             </div>
+
+            <div class="layout">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(this,'account','ACCOUNT MODULE')">ACCOUNT<span>IDENTITY</span></button>
+                    <button class="tab" onclick="switchTab(this,'resource','RESOURCE MODULE')">RESOURCE<span>ASSETS</span></button>
+                    <button class="tab" onclick="switchTab(this,'feature','FEATURE MODULE')">FEATURE<span>SYSTEM</span></button>
+                </div>
+
+                <div class="right">
+                    <div class="module">
+                        <div id="moduleTitle">ACCOUNT MODULE</div><small>ACCESS :: ROOT</small>
+                    </div>
+
+                    <div class="area">
+                        <div class="tab-content active" id="account">
+                            <div class="grid">
+                                <button class="btn" onclick="runBridge(this,'exportAccount')">EXPORT</button>
+                                <button class="btn" onclick="runBridge(this,'importAccount')">IMPORT</button>
+                                <button class="btn" onclick="runBridge(this,'toggleCookieLogin')">COOKIE LOGIN</button>
+                                <button class="btn" onclick="runBridge(this,'toggleCookieExport')">COOKIE DUMP</button>
+                            </div>
+                        </div>
+
+                        <div class="tab-content" id="resource">
+                            <div class="grid">
+                                <button class="btn" onclick="runBridge(this,'loadMaterial')">LOAD TEX</button>
+                                <button class="btn" onclick="runBridge(this,'extractMaterial')">UNPACK</button>
+                                <button class="btn" onclick="runBridge(this,'toggleXray')">X-RAY</button>
+                                <button class="btn" onclick="runBridge(this,'deleteEN')">CLEAN</button>
+                                <button class="btn" onclick="runBridge(this,'selectBranch')">BRANCH</button>
+                            </div>
+                        </div>
+
+                        <div class="tab-content" id="feature">
+                            <div class="grid">
+                                <button class="btn" onclick="runBridge(this,'FPSdisplay')">FPS</button>
+                                <button class="btn" onclick="runBridge(this,'toggleFreeCam')">FREECAM</button>
+                                <button class="btn" onclick="runBridge(this,'toggleNightVision')">NV MODE</button>
+                                <button class="btn" onclick="runBridge(this,'toggleDepthOfField')">DOF</button>
+                                <button class="btn" onclick="runBridge(this,'summonVehicle')">MOUNT</button>
+                                <button class="btn" onclick="runBridge(this,'loadPyScript')">TP MENU</button>
+                                <button class="btn" onclick="runBridge(this,'autofish')">AUTO FISH</button>
+                                <button class="btn" onclick="runBridge(this,'toggleHitEffect')">HIT FX</button>
+                                <button class="btn" onclick="runBridge(this,'toggleHeartTrail')">TRAIL</button>
+                                <button class="btn" onclick="runBridge(this,'openScriptLoader')">LOADER</button>
+                                <button class="btn" onclick="runBridge(this,'toggleAutoTool')">AUTO TOOL</button>
+                                <button class="btn" onclick="runBridge(this,'startServerIpCapture')">IP TRACE</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="console" id="console">
+                        <div class="log">System initialized.</div>
+                        <div class="log">Waiting for command.</div>
+                        <div class="log">JsBridge checking...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">SYSTEM :: ONLINE :: SECURE PANEL</div>
         </div>
     </div>
+</div>
 
-    <script>
-        const scaleWrapper=document.getElementById("scale-wrapper");
-        const panel=document.getElementById("panel");
-        const consoleBox=document.getElementById("console");
-        const moduleTitle=document.getElementById("moduleTitle");
-        const clock=document.getElementById("clock");
-        
-        function autoScale(){
-            scaleWrapper.style.transform="scale(1)";
-            const s=Math.min(window.innerWidth/panel.offsetWidth*.9,window.innerHeight/panel.offsetHeight*.9,1);
-            scaleWrapper.style.transform=`scale(${s})`;
+<script>
+    const scaleWrapper=document.getElementById("scale-wrapper");
+    const panel=document.getElementById("panel");
+    const consoleBox=document.getElementById("console");
+    const moduleTitle=document.getElementById("moduleTitle");
+    const clock=document.getElementById("clock");
+    
+    function autoScale(){
+        scaleWrapper.style.transform="scale(1)";
+        const s=Math.min(window.innerWidth/panel.offsetWidth*.9,window.innerHeight/panel.offsetHeight*.9,1);
+        scaleWrapper.style.transform=`scale(${s})`;
+    }
+    
+    function switchTab(el,id,title){
+        document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+        el.classList.add("active");
+        document.getElementById(id).classList.add("active");
+        moduleTitle.innerText=title;
+        addLog("Module switched: "+title);
+        autoScale();
+    }
+    
+    function addLog(text){
+        const line=document.createElement("div");
+        line.className="log";
+        line.innerText=text;
+        consoleBox.appendChild(line);
+        while(consoleBox.children.length>4)consoleBox.removeChild(consoleBox.children[0]);
+    }
+    
+    function runBridge(btn,method){
+        btn.classList.add("running");
+        addLog("Executing: "+method);
+        setTimeout(()=>btn.classList.remove("running"),300);
+    
+        if(!window.JsBridge){
+            addLog("Failed: JsBridge not detected.");
+            return;
         }
-        
-        function switchTab(el,id,title){
-            document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-            document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
-            el.classList.add("active");
-            document.getElementById(id).classList.add("active");
-            moduleTitle.innerText=title;
-            addLog("Module switched: "+title);
+    
+        if(typeof window.JsBridge[method]!=="function"){
+            addLog("Failed: method not found.");
+            return;
+        }
+    
+        try{
+            window.JsBridge[method]();
+            addLog("Success: "+method);
+        }catch(e){
+            addLog("Error: "+method);
+        }
+    }
+    
+    function updateClock(){
+        const d=new Date();
+        clock.innerText=[d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,"0")).join(":");
+    }
+    
+    function initMatrix(){
+        const canvas=document.getElementById("matrix");
+        const ctx=canvas.getContext("2d");
+        const chars="01ACCESSROOTSYSTEMBRIDGE";
+        const fontSize=14;
+        let drops=[];
+    
+        function resize(){
+            canvas.width=innerWidth;
+            canvas.height=innerHeight;
+            drops=Array(Math.floor(canvas.width/fontSize)).fill(1);
             autoScale();
         }
-        
-        function addLog(text){
-            const line=document.createElement("div");
-            line.className="log";
-            line.innerText=text;
-            consoleBox.appendChild(line);
-            while(consoleBox.children.length>4)consoleBox.removeChild(consoleBox.children[0]);
-        }
-        
-        function runBridge(btn,method){
-            btn.classList.add("running");
-            addLog("Executing: "+method);
-            setTimeout(()=>btn.classList.remove("running"),300);
-        
-            if(!window.JsBridge){
-                addLog("Failed: JsBridge not detected.");
-                return;
-            }
-        
-            if(typeof window.JsBridge[method]!=="function"){
-                addLog("Failed: method not found.");
-                return;
-            }
-        
-            try{
-                window.JsBridge[method]();
-                addLog("Success: "+method);
-            }catch(e){
-                addLog("Error: "+method);
+    
+        function draw(){
+            ctx.fillStyle="rgba(0,0,0,.08)";
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle="#00ff9d";
+            ctx.font=fontSize+"px Consolas";
+    
+            for(let i=0;i<drops.length;i++){
+                const text=chars[Math.floor(Math.random()*chars.length)];
+                ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+                if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;
+                drops[i]++;
             }
         }
-        
-        function updateClock(){
-            const d=new Date();
-            clock.innerText=[d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,"0")).join(":");
-        }
-        
-        function initMatrix(){
-            const canvas=document.getElementById("matrix");
-            const ctx=canvas.getContext("2d");
-            const chars="01ACCESSROOTSYSTEMBRIDGE";
-            const fontSize=14;
-            let drops=[];
-        
-            function resize(){
-                canvas.width=innerWidth;
-                canvas.height=innerHeight;
-                drops=Array(Math.floor(canvas.width/fontSize)).fill(1);
-                autoScale();
-            }
-        
-            function draw(){
-                ctx.fillStyle="rgba(0,0,0,.08)";
-                ctx.fillRect(0,0,canvas.width,canvas.height);
-                ctx.fillStyle="#00ff9d";
-                ctx.font=fontSize+"px Consolas";
-        
-                for(let i=0;i<drops.length;i++){
-                    const text=chars[Math.floor(Math.random()*chars.length)];
-                    ctx.fillText(text,i*fontSize,drops[i]*fontSize);
-                    if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;
-                    drops[i]++;
-                }
-            }
-        
-            resize();
-            window.addEventListener("resize",resize);
-            setInterval(draw,45);
-        }
-        
-        window.onload=()=>{
-            autoScale();
-            initMatrix();
-            updateClock();
-            setInterval(updateClock,1000);
-            addLog(window.JsBridge?"JsBridge detected.":"JsBridge not detected.");
-        };
-    </script>
-</body>
-
-</html>
+    
+        resize();
+        window.addEventListener("resize",resize);
+        setInterval(draw,45);
+    }
+    
+    window.onload=()=>{
+        autoScale();
+        initMatrix();
+        updateClock();
+        setInterval(updateClock,1000);
+        addLog(window.JsBridge?"JsBridge detected.":"JsBridge not detected.");
+    };
+</script>
