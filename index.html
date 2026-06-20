@@ -1,173 +1,426 @@
-<div id="scale-wrapper">
-    <div class="panel" id="panel">
-        <div class="glass">
-            <div class="title">HACKER CONTROL</div>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Float Menu</title>
 
-            <div class="status">
-                <div><span class="dot"></span>CORE ONLINE</div>
-                <div id="clock">--:--:--</div>
+<style>
+html,body{
+    margin:0!important;
+    padding:0!important;
+    width:100vw!important;
+    height:100vh!important;
+    overflow:hidden!important;
+    background:transparent!important;
+    font-family:Consolas,"Microsoft YaHei",monospace!important;
+}
+
+*{
+    box-sizing:border-box!important;
+    -webkit-tap-highlight-color:transparent!important;
+    user-select:none!important;
+}
+
+.fm-root{
+    position:fixed!important;
+    inset:0!important;
+    z-index:2147483647!important;
+    pointer-events:none!important;
+    overflow:hidden!important;
+}
+
+.fm-root::before{
+    content:""!important;
+    position:absolute!important;
+    inset:0!important;
+    background:rgba(0,0,0,.18)!important;
+    pointer-events:none!important;
+}
+
+.fm-scroll{
+    position:absolute!important;
+    inset:0!important;
+    padding:58px 56px!important;
+    display:flex!important;
+    gap:44px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    pointer-events:auto!important;
+    scroll-snap-type:x proximity!important;
+}
+
+.fm-scroll::-webkit-scrollbar{
+    height:0!important;
+}
+
+.fm-window{
+    width:378px!important;
+    height:630px!important;
+    flex:0 0 378px!important;
+    border-radius:8px!important;
+    overflow:hidden!important;
+    background:rgba(18,18,18,.94)!important;
+    border:1px solid rgba(255,255,255,.18)!important;
+    box-shadow:
+        0 20px 45px rgba(0,0,0,.55),
+        inset 0 0 0 1px rgba(255,255,255,.035)!important;
+    backdrop-filter:blur(8px)!important;
+    -webkit-backdrop-filter:blur(8px)!important;
+    scroll-snap-align:center!important;
+}
+
+.fm-header{
+    height:50px!important;
+    padding:0 16px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    background:rgba(13,13,13,.98)!important;
+    border-bottom:1px solid rgba(255,255,255,.12)!important;
+    color:rgba(235,235,235,.75)!important;
+    font-size:15px!important;
+    font-weight:700!important;
+    letter-spacing:1px!important;
+}
+
+.fm-left{
+    display:flex!important;
+    align-items:center!important;
+    gap:8px!important;
+    white-space:nowrap!important;
+}
+
+.fm-dot{
+    width:6px!important;
+    height:6px!important;
+    border-radius:50%!important;
+    background:#00d27a!important;
+    box-shadow:0 0 8px #00d27a!important;
+}
+
+.fm-collapse{
+    width:28px!important;
+    height:28px!important;
+    border:none!important;
+    background:transparent!important;
+    color:rgba(255,255,255,.75)!important;
+    font-size:18px!important;
+    cursor:pointer!important;
+}
+
+.fm-body{
+    height:calc(100% - 50px)!important;
+    padding:14px 16px 18px!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+}
+
+.fm-body::-webkit-scrollbar{
+    width:5px!important;
+}
+
+.fm-body::-webkit-scrollbar-thumb{
+    background:rgba(255,255,255,.18)!important;
+    border-radius:10px!important;
+}
+
+.fm-section{
+    margin-bottom:20px!important;
+    padding:18px!important;
+    border-radius:7px!important;
+    background:rgba(42,42,42,.82)!important;
+    border:1px solid rgba(255,255,255,.10)!important;
+    box-shadow:
+        inset 0 0 0 1px rgba(0,0,0,.28),
+        0 6px 18px rgba(0,0,0,.22)!important;
+}
+
+.fm-title{
+    margin-bottom:15px!important;
+    padding-bottom:12px!important;
+    border-bottom:1px solid rgba(255,255,255,.08)!important;
+    color:rgba(235,235,235,.62)!important;
+    font-size:14px!important;
+    font-weight:700!important;
+    letter-spacing:1px!important;
+}
+
+.fm-btn{
+    display:block!important;
+    width:100%!important;
+    height:48px!important;
+    margin:0 0 14px 0!important;
+    padding:0!important;
+    border-radius:7px!important;
+    border:1px solid rgba(255,255,255,.12)!important;
+    background:linear-gradient(180deg,rgba(55,55,55,.96),rgba(38,38,38,.96))!important;
+    color:rgba(245,245,245,.84)!important;
+    font-size:16px!important;
+    font-weight:700!important;
+    line-height:48px!important;
+    text-align:center!important;
+    cursor:pointer!important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.06),
+        0 3px 10px rgba(0,0,0,.24)!important;
+}
+
+.fm-btn:last-child{
+    margin-bottom:0!important;
+}
+
+.fm-btn:active{
+    transform:scale(.97)!important;
+    background:rgba(32,32,32,.98)!important;
+}
+
+.fm-check{
+    height:43px!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:13px!important;
+    color:rgba(235,235,235,.72)!important;
+    font-size:17px!important;
+    cursor:pointer!important;
+}
+
+.fm-check input{
+    display:none!important;
+}
+
+.fm-box{
+    width:18px!important;
+    height:18px!important;
+    flex:0 0 18px!important;
+    border-radius:3px!important;
+    border:2px solid rgba(255,255,255,.22)!important;
+    background:rgba(0,0,0,.35)!important;
+    position:relative!important;
+}
+
+.fm-check input:checked + .fm-box{
+    border-color:#00d27a!important;
+    background:rgba(0,210,122,.18)!important;
+    box-shadow:0 0 8px rgba(0,210,122,.45)!important;
+}
+
+.fm-check input:checked + .fm-box::after{
+    content:""!important;
+    position:absolute!important;
+    left:4px!important;
+    top:1px!important;
+    width:5px!important;
+    height:10px!important;
+    border:solid #00d27a!important;
+    border-width:0 2px 2px 0!important;
+    transform:rotate(45deg)!important;
+}
+
+.fm-window.fm-close{
+    height:50px!important;
+}
+
+.fm-window.fm-close .fm-body{
+    display:none!important;
+}
+
+@media(max-width:900px){
+    .fm-scroll{
+        padding:42px 26px!important;
+        gap:28px!important;
+    }
+
+    .fm-window{
+        width:350px!important;
+        flex-basis:350px!important;
+        height:590px!important;
+    }
+}
+
+@media(max-width:430px){
+    .fm-scroll{
+        padding:28px 18px!important;
+        gap:18px!important;
+    }
+
+    .fm-window{
+        width:330px!important;
+        flex-basis:330px!important;
+        height:570px!important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="fm-root">
+    <div class="fm-scroll">
+
+        <div class="fm-window">
+            <div class="fm-header">
+                <div class="fm-left">
+                    <span class="fm-dot"></span>
+                    <span>01</span>
+                    <span>//</span>
+                    <span>RESOURCE_ACCOUNT</span>
+                </div>
+                <button class="fm-collapse" onclick="togglePanel(this)">⌄</button>
             </div>
 
-            <div class="layout">
-                <div class="tabs">
-                    <button class="tab active" onclick="switchTab(this,'account','ACCOUNT MODULE')">ACCOUNT<span>IDENTITY</span></button>
-                    <button class="tab" onclick="switchTab(this,'resource','RESOURCE MODULE')">RESOURCE<span>ASSETS</span></button>
-                    <button class="tab" onclick="switchTab(this,'feature','FEATURE MODULE')">FEATURE<span>SYSTEM</span></button>
+            <div class="fm-body">
+                <div class="fm-section">
+                    <div class="fm-title">ACCOUNT MANAGER</div>
+                    <button class="fm-btn" onclick="runBridge('exportAccount')">导出账号</button>
+                    <button class="fm-btn" onclick="runBridge('importAccount')">导入账号</button>
+                    <button class="fm-btn" onclick="runBridge('toggleCookieLogin')">导入Cookie</button>
+                    <button class="fm-btn" onclick="runBridge('toggleCookieExport')">导出Cookie</button>
                 </div>
 
-                <div class="right">
-                    <div class="module">
-                        <div id="moduleTitle">ACCOUNT MODULE</div><small>ACCESS :: ROOT</small>
-                    </div>
-
-                    <div class="area">
-                        <div class="tab-content active" id="account">
-                            <div class="grid">
-                                <button class="btn" onclick="runBridge(this,'exportAccount')">EXPORT</button>
-                                <button class="btn" onclick="runBridge(this,'importAccount')">IMPORT</button>
-                                <button class="btn" onclick="runBridge(this,'toggleCookieLogin')">COOKIE LOGIN</button>
-                                <button class="btn" onclick="runBridge(this,'toggleCookieExport')">COOKIE DUMP</button>
-                            </div>
-                        </div>
-
-                        <div class="tab-content" id="resource">
-                            <div class="grid">
-                                <button class="btn" onclick="runBridge(this,'loadMaterial')">LOAD TEX</button>
-                                <button class="btn" onclick="runBridge(this,'extractMaterial')">UNPACK</button>
-                                <button class="btn" onclick="runBridge(this,'toggleXray')">X-RAY</button>
-                                <button class="btn" onclick="runBridge(this,'deleteEN')">CLEAN</button>
-                                <button class="btn" onclick="runBridge(this,'selectBranch')">BRANCH</button>
-                            </div>
-                        </div>
-
-                        <div class="tab-content" id="feature">
-                            <div class="grid">
-                                <button class="btn" onclick="runBridge(this,'FPSdisplay')">FPS</button>
-                                <button class="btn" onclick="runBridge(this,'toggleFreeCam')">FREECAM</button>
-                                <button class="btn" onclick="runBridge(this,'toggleNightVision')">NV MODE</button>
-                                <button class="btn" onclick="runBridge(this,'toggleDepthOfField')">DOF</button>
-                                <button class="btn" onclick="runBridge(this,'summonVehicle')">MOUNT</button>
-                                <button class="btn" onclick="runBridge(this,'loadPyScript')">TP MENU</button>
-                                <button class="btn" onclick="runBridge(this,'autofish')">AUTO FISH</button>
-                                <button class="btn" onclick="runBridge(this,'toggleHitEffect')">HIT FX</button>
-                                <button class="btn" onclick="runBridge(this,'toggleHeartTrail')">TRAIL</button>
-                                <button class="btn" onclick="runBridge(this,'openScriptLoader')">LOADER</button>
-                                <button class="btn" onclick="runBridge(this,'toggleAutoTool')">AUTO TOOL</button>
-                                <button class="btn" onclick="runBridge(this,'startServerIpCapture')">IP TRACE</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="console" id="console">
-                        <div class="log">System initialized.</div>
-                        <div class="log">Waiting for command.</div>
-                        <div class="log">JsBridge checking...</div>
-                    </div>
+                <div class="fm-section">
+                    <div class="fm-title">RESOURCE MODULE</div>
+                    <button class="fm-btn" onclick="runBridge('loadMaterial')">加载资源</button>
+                    <button class="fm-btn" onclick="runBridge('extractMaterial')">解压资源</button>
+                    <button class="fm-btn" onclick="runBridge('deleteEN')">删除EN</button>
+                    <button class="fm-btn" onclick="runBridge('selectBranch')">选择分支</button>
                 </div>
             </div>
-
-            <div class="footer">SYSTEM :: ONLINE :: SECURE PANEL</div>
         </div>
+
+        <div class="fm-window">
+            <div class="fm-header">
+                <div class="fm-left">
+                    <span class="fm-dot"></span>
+                    <span>02</span>
+                    <span>//</span>
+                    <span>VISUAL_FUNCTIONS</span>
+                </div>
+                <button class="fm-collapse" onclick="togglePanel(this)">⌄</button>
+            </div>
+
+            <div class="fm-body">
+                <div class="fm-section">
+                    <div class="fm-title">VISUAL MODULES</div>
+
+                    <label class="fm-check">
+                        <input type="checkbox" onchange="runBridge('FPSdisplay')">
+                        <span class="fm-box"></span>
+                        <span>FPS显示</span>
+                    </label>
+
+                    <label class="fm-check">
+                        <input type="checkbox" onchange="runBridge('toggleXray')">
+                        <span class="fm-box"></span>
+                        <span>Xray</span>
+                    </label>
+
+                    <label class="fm-check">
+                        <input type="checkbox" onchange="runBridge('toggleNightVision')">
+                        <span class="fm-box"></span>
+                        <span>夜视效果</span>
+                    </label>
+
+                    <label class="fm-check">
+                        <input type="checkbox" onchange="runBridge('toggleDepthOfField')">
+                        <span class="fm-box"></span>
+                        <span>景深</span>
+                    </label>
+
+                    <label class="fm-check">
+                        <input type="checkbox" onchange="runBridge('toggleHitEffect')">
+                        <span class="fm-box"></span>
+                        <span>攻击特效</span>
+                    </label>
+                </div>
+
+                <div class="fm-section">
+                    <div class="fm-title">EXPLOIT MODULES</div>
+
+                    <label class="fm-check">
+                        <input type="checkbox" onchange="runBridge('toggleFreeCam')">
+                        <span class="fm-box"></span>
+                        <span>灵魂出窍</span>
+                    </label>
+
+                    <label class="fm-check">
+                        <input type="checkbox" onchange="runBridge('toggleAutoTool')">
+                        <span class="fm-box"></span>
+                        <span>自动工具</span>
+                    </label>
+
+                    <label class="fm-check">
+                        <input type="checkbox" onchange="runBridge('autofish')">
+                        <span class="fm-box"></span>
+                        <span>自动钓鱼</span>
+                    </label>
+
+                    <label class="fm-check">
+                        <input type="checkbox" onchange="runBridge('startServerIpCapture')">
+                        <span class="fm-box"></span>
+                        <span>获取服务器IP</span>
+                    </label>
+
+                    <button class="fm-btn" onclick="runBridge('summonVehicle')">召唤坐骑</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="fm-window">
+            <div class="fm-header">
+                <div class="fm-left">
+                    <span class="fm-dot"></span>
+                    <span>03</span>
+                    <span>//</span>
+                    <span>PYTHON_SCRIPTS</span>
+                </div>
+                <button class="fm-collapse" onclick="togglePanel(this)">⌄</button>
+            </div>
+
+            <div class="fm-body">
+                <div class="fm-section">
+                    <div class="fm-title">SCRIPT MODULE</div>
+                    <button class="fm-btn" onclick="runBridge('loadPyScript')">自动瞄准</button>
+                    <button class="fm-btn" onclick="runBridge('openScriptLoader')">实体ESP</button>
+                    <button class="fm-btn" onclick="runBridge('openScriptLoader')">矿物ESP</button>
+                    <button class="fm-btn" onclick="runBridge('openScriptLoader')">容器ESP</button>
+                    <button class="fm-btn" onclick="runBridge('openScriptLoader')">区块显示</button>
+                    <button class="fm-btn" onclick="runBridge('openScriptLoader')">信息栏</button>
+                    <button class="fm-btn" onclick="runBridge('toggleFreeCam')">飞行</button>
+                    <button class="fm-btn" onclick="runBridge('toggleHeartTrail')">兔子跳</button>
+                    <button class="fm-btn" onclick="runBridge('loadPyScript')">快速移动</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <script>
-    const scaleWrapper=document.getElementById("scale-wrapper");
-    const panel=document.getElementById("panel");
-    const consoleBox=document.getElementById("console");
-    const moduleTitle=document.getElementById("moduleTitle");
-    const clock=document.getElementById("clock");
-    
-    function autoScale(){
-        scaleWrapper.style.transform="scale(1)";
-        const s=Math.min(window.innerWidth/panel.offsetWidth*.9,window.innerHeight/panel.offsetHeight*.9,1);
-        scaleWrapper.style.transform=`scale(${s})`;
+function togglePanel(btn){
+    const panel = btn.closest(".fm-window");
+    panel.classList.toggle("fm-close");
+    btn.innerText = panel.classList.contains("fm-close") ? "›" : "⌄";
+}
+
+function runBridge(method){
+    if(!window.JsBridge){
+        console.log("JsBridge not detected:", method);
+        return;
     }
-    
-    function switchTab(el,id,title){
-        document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-        document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
-        el.classList.add("active");
-        document.getElementById(id).classList.add("active");
-        moduleTitle.innerText=title;
-        addLog("Module switched: "+title);
-        autoScale();
+
+    if(typeof window.JsBridge[method] !== "function"){
+        console.log("Method not found:", method);
+        return;
     }
-    
-    function addLog(text){
-        const line=document.createElement("div");
-        line.className="log";
-        line.innerText=text;
-        consoleBox.appendChild(line);
-        while(consoleBox.children.length>4)consoleBox.removeChild(consoleBox.children[0]);
+
+    try{
+        window.JsBridge[method]();
+    }catch(e){
+        console.log("Bridge error:", method, e);
     }
-    
-    function runBridge(btn,method){
-        btn.classList.add("running");
-        addLog("Executing: "+method);
-        setTimeout(()=>btn.classList.remove("running"),300);
-    
-        if(!window.JsBridge){
-            addLog("Failed: JsBridge not detected.");
-            return;
-        }
-    
-        if(typeof window.JsBridge[method]!=="function"){
-            addLog("Failed: method not found.");
-            return;
-        }
-    
-        try{
-            window.JsBridge[method]();
-            addLog("Success: "+method);
-        }catch(e){
-            addLog("Error: "+method);
-        }
-    }
-    
-    function updateClock(){
-        const d=new Date();
-        clock.innerText=[d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,"0")).join(":");
-    }
-    
-    function initMatrix(){
-        const canvas=document.getElementById("matrix");
-        const ctx=canvas.getContext("2d");
-        const chars="01ACCESSROOTSYSTEMBRIDGE";
-        const fontSize=14;
-        let drops=[];
-    
-        function resize(){
-            canvas.width=innerWidth;
-            canvas.height=innerHeight;
-            drops=Array(Math.floor(canvas.width/fontSize)).fill(1);
-            autoScale();
-        }
-    
-        function draw(){
-            ctx.fillStyle="rgba(0,0,0,.08)";
-            ctx.fillRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle="#00ff9d";
-            ctx.font=fontSize+"px Consolas";
-    
-            for(let i=0;i<drops.length;i++){
-                const text=chars[Math.floor(Math.random()*chars.length)];
-                ctx.fillText(text,i*fontSize,drops[i]*fontSize);
-                if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;
-                drops[i]++;
-            }
-        }
-    
-        resize();
-        window.addEventListener("resize",resize);
-        setInterval(draw,45);
-    }
-    
-    window.onload=()=>{
-        autoScale();
-        initMatrix();
-        updateClock();
-        setInterval(updateClock,1000);
-        addLog(window.JsBridge?"JsBridge detected.":"JsBridge not detected.");
-    };
+}
 </script>
+
+</body>
+</html>
