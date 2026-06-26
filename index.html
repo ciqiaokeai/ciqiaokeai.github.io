@@ -3,355 +3,429 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>Anime Control Panel</title>
-
+<title>XP Control Panel</title>
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Microsoft YaHei", Arial, sans-serif;
-    user-select: none;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Microsoft YaHei",Consolas,monospace;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
 }
 
-html, body {
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:transparent;
 }
 
-/* 二次元背景，可以换成你自己的图片 */
-body {
+/* 根容器：强制居中且不超出宿主 */
+#app{
+    width:100vw;
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+}
+
+/* 缩放容器 */
+#scaleWrapper{
+    transform-origin:center center;
+}
+
+/* 主面板：限制在视窗内，避免被裁切 */
+.panel{
+    width:min(430px, 92vw);
+    max-height:min(86vh, );
+    display:flex;
+    flex-direction:column;
+    border-radius:22px;
+    overflow:hidden;
     background:
-        linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.35)),
-        url("https://api.yimian.xyz/img?type=moe&size=1920x1080") center / cover no-repeat;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* 外层缩放，适配小屏 */
-#scaleWrapper {
-    transform-origin: center;
-}
-
-/* 主面板 */
-.panel {
-    width: 430px;
-    max-height: 86vh;
-    border-radius: 22px;
-    overflow: hidden;
-    background: rgba(18, 18, 22, .72);
-    border: 1px solid rgba(255,255,255,.22);
+        linear-gradient(180deg, rgba(18,18,22,.78), rgba(10,10,14,.82)),
+        url("https://api.yimian.xyz/img?type=moe&size=1280x720") center/cover no-repeat;
+    border:1px solid rgba(255,255,255,.18);
     box-shadow:
-        0 22px 55px rgba(0,0,0,.48),
-        inset 0 0 0 1px rgba(255,255,255,.06);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+        0 18px 50px rgba(0,0,0,.55),
+        inset 0 0 0 1px rgba(255,255,255,.04);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
 }
 
 /* 顶部 */
-.header {
-    padding: 18px 20px 14px;
-    background: linear-gradient(135deg, rgba(255,120,190,.22), rgba(120,180,255,.18));
-    border-bottom: 1px solid rgba(255,255,255,.16);
+.header{
+    padding:16px 18px 14px;
+    background:linear-gradient(135deg, rgba(120,90,255,.26), rgba(0,180,255,.16));
+    border-bottom:1px solid rgba(255,255,255,.12);
+    flex-shrink:0;
 }
 
-.title {
-    color: #fff;
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-shadow: 0 2px 12px rgba(0,0,0,.45);
+.title{
+    color:#fff;
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:2px;
+    text-shadow:0 2px 12px rgba(0,0,0,.45);
 }
 
-.subtitle {
-    margin-top: 5px;
-    color: rgba(255,255,255,.68);
-    font-size: 12px;
-    letter-spacing: 1px;
+.subtitle{
+    margin-top:4px;
+    color:rgba(255,255,255,.68);
+    font-size:11px;
 }
 
-/* 内容布局 */
-.main {
-    display: flex;
-    gap: 12px;
-    padding: 14px;
+/* 主体 */
+.main{
+    display:flex;
+    gap:12px;
+    padding:14px;
+    min-height:0;
+    flex:1;
+    overflow:hidden;
 }
 
 /* 左侧分类 */
-.tabs {
-    width: 104px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+.tabs{
+    width:104px;
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
 }
 
-.tab {
-    height: 48px;
-    border: 1px solid rgba(255,255,255,.16);
-    border-radius: 15px;
-    background: rgba(255,255,255,.10);
-    color: rgba(255,255,255,.72);
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: .18s;
+.tab{
+    min-height:48px;
+    border:none;
+    border-radius:15px;
+    background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.14);
+    color:rgba(255,255,255,.72);
+    font-size:12px;
+    font-weight:800;
+    cursor:pointer;
+    transition:.18s;
 }
 
-.tab span {
-    display: block;
-    margin-top: 3px;
-    font-size: 9px;
-    font-weight: 400;
-    opacity: .55;
+.tab span{
+    display:block;
+    margin-top:3px;
+    font-size:9px;
+    font-weight:500;
+    color:rgba(255,255,255,.44);
 }
 
-.tab.active {
-    color: #fff;
-    background: linear-gradient(135deg, rgba(255,126,190,.75), rgba(108,172,255,.72));
-    border-color: rgba(255,255,255,.42);
-    box-shadow: 0 8px 20px rgba(120,150,255,.25);
+.tab.active{
+    color:#fff;
+    background:linear-gradient(135deg, rgba(132,96,255,.82), rgba(0,190,255,.72));
+    border-color:rgba(255,255,255,.38);
+    box-shadow:0 10px 22px rgba(90,150,255,.28.active    color:rgba(255,255,255,.75);
 }
 
-/* 右侧区域 */
-.content {
-    flex: 1;
-    min-width: 0;
+/* 右侧内容 */
+.content{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
 }
 
-.module-title {
-    height: 34px;
-    margin-bottom: 10px;
-    padding: 0 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: 13px;
-    background: rgba(0,0,0,.22);
-    border: 1px solid rgba(255,255,255,.12);
-    color: rgba(255,255,255,.9);
-    font-size: 12px;
-    font-weight: 700;
+.module-title{
+    height:34px;
+    margin-bottom:10px;
+    padding:0 display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-radius:13px;
+    background:rgba(0,0,0,.24);
+    border:1px solid rgba(255,255,255,.12);
+    color:rgba(255,255,255,.88);
+    font-size:12px;
+800;
+    flex-shrink:0;
 }
 
-.module-title small {
-    color: rgba(255,255,255,.48);
-    font-size: 9px;
+.module-title small{
+    color:rgba(255,255,255,.50);
+    font-size:9px;
 }
 
-.tab-content {
-    display: none;
-    height: 260px;
-    overflow-y: auto;
-    padding-right: 4px;
+/* 页面区域：允许滚动，不撑破高度 */
+.tab-content{
+    display:none;
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    padding-right:4px;
 }
 
-.tab-content.active {
-    display: block;
+.tab-content.active{
+    display:block;
 }
 
-.tab-content::-webkit-scrollbar {
-    width: 4px;
+.tab-content::-webkit-scrollbar{
+    width:4px;
 }
 
-.tab-content::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,.28);
-    border-radius: 10px;
+.tab-content::-webkit-scrollbar-thumb{
+    background:rgba(255,255,255,.25);
+    border-radius:10px;
 }
 
 /* 分组 */
-.group {
-    margin-bottom: 12px;
-    padding: 12px;
-    border-radius: 16px;
-    background: rgba(0,0,0,.22);
-    border: 1px solid rgba(255,255,255,.12);
+.group{
+    margin-bottom:12px;
+    padding:12px;
+    border-radius:16px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.10);
 }
 
-.group-title {
-    margin-bottom: 10px;
-    color: rgba(255,255,255,.62);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
+.group-title{
+    margin-bottom:10px;
+    color:rgba(255,255,255,.62);
+    font-size:11px;
+    font-weight800-spacing:1px;
 }
 
 /* 按钮 */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 9px;
+.grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:9px;
 }
 
-.btn {
-    height: 42px;
-    border: 1px solid rgba(255,255,255,.16);
-    border-radius: 13px;
-    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
-    color: rgba(255,255,255,.88);
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: .16s;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+.btn{
+    height:42px;
+    border:none;
+    border-radius:13px;
+    background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+    border:1px solid rgba(255,255,255,.14);
+    color:rgba(255,255,255,.88);
+    font-size:12px;
+    font-weight:800;
+    cursor:pointer;
+    transition:.16s;
+    box-shadow:inset 0 (255,255,255,.10);
 }
 
-.btn:hover {
-    background: linear-gradient(135deg, rgba(255,126,190,.55), rgba(108,172,255,.50));
-    color: #fff;
-    border-color: rgba(255,255,255,.38);
+.btn:active{
+    transform:scale(.95);
+    background:linear-gradient(135deg, rgba(132,96,255,.88), rgba(0,190,255,.82));
+    box-shadow:0 0 16px rgba(90,160,255,.55行 */
+.switch-row{
+    height:42px;
+    margin-bottom:8px;
+    padding:0 12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-radius:14px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(,.10);
+    color:rgba(255,255,255,.84);
+    font-size:13px;
+    font-weight:700;
 }
 
-.btn:active {
-    transform: scale(.95);
+.switch-row input{
+    display:none;
+}
+
+.switch{
+    width:42px;
+    height:23px;
+    padding:3px;
+    border-radius:999px;
+    background:rgba(255,255,255,.18);
+    transition:.2s;
+    flex-shrink:0;
+}
+
+.switch::after{
+    content:"";
+    display:block;
+    width:17px;
+    height:17px;
+    border-radius:50%;
+    background:rgba(255,255,255,.82);
+    transition:.2s;
+}
+
+.switch-rowchecked .switch{
+    background:linear-gradient(135deg, #8c6cff, #00c8ff);
+    box-shadow:0 0 12px rgba(80,180,255,.55);
+}
+
+.switch-row input:checked + .switch::after{
+    transform:translateX(19px);
 }
 
 /* 底部 */
-.footer {
-    padding: 11px 16px 14px;
-    border-top: 1px solid rgba(255,255,255,.12);
-    display: flex;
-    justify-content: space-between;
-    color: rgba(255,255,255,.55);
-    font-size: 10px;
+.footer{
+    padding:0 14px 14px;
+    flex-shrink:0;
 }
 
-.dot {
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    margin-right: 6px;
-    border-radius: 50%;
-    background: #6cffb5;
-    box-shadow: 0 0 10px #6cffb5;
+.notice{
+    height:38px;
+    padding:0 14px;
+    display:flex;
+    align-items:center;
+    border-radius:14px;
+    color:rgba(255,255,255,.64);
+    background:rgba(0,0,0,.22);
+    border:1px solid rgba(255,255,255,.10);
+    font-size:11px;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
 }
 
-/* 小屏优化 */
-@media (max-width: 460px) {
-    .panel {
-        width: 410px;
+/* 小屏再压缩 */
+@media (max-width: 420px){
+    .panel{
+        width:min(400px  }
+
+    .tabs{
+        width:94px;
     }
 
-    .tabs {
-        width: 96px;
+    .tab{
+        font-size:11px;
     }
 
-    .tab {
-        font-size: 11px;
-    }
-
-    .btn {
-        font-size: 11px;
+    .btn{
+        font-size:11px;
     }
 }
 </style>
 </head>
-
 <body>
 
-<div id="scaleWrapper">
-<div class="panel" id="panel">
+<div id="app">
+    <div id="scaleWrapper">
+        <div class="panel" id="panel">
+            <div class="header">
+                <div class="title">CONTROL PANEL</div>
+                <div class="subtitle">XP Module · Anime Glass UI</div>
+            </div>
 
-    <div class="header">
-        <div class="title">CONTROL PANEL</div>
-        <div class="subtitle">Anime Glass UI · System Online</div>
-    </div>
+            <div class="main">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(this,'account','ACCOUNT')">
+                                                <span>ACCOUNT</span>
+                    </button>
+                    <button class="tab" onclick="switchTab(this,'resource','RESOURCE')">
+                        资源
+                        <span>RESOURCE</span>
+                    </button>
+                    <button class="tab" onclick="switchTab(this,'feature','FEATURE')">
+                        功能
+FEATURE</span>
+                    </button>
+                </div>
 
-    <div class="main">
+                <div class="content">
+                    <div class="module-title">
+                        <div id="moduleTitle">ACCOUNT</div>
+                        <small>READY</small>
+                    </div>
 
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab(this,'account','ACCOUNT')">
-                账号
-                <span>ACCOUNT</span>
-            </button>
-            <button class="tab" onclick="switchTab(this,'resource','RESOURCE')">
-                资源
-                <span>RESOURCE</span>
-            </button>
-            <button class="tab" onclick="switchTab(this,'feature','FEATURE')">
-                功能
-                <span>FEATURE</span>
-            </button>
+                    <div class="tab-content active" id="account">
+                        <div class="groupdiv class="group-title">ACCOUNT MANAGER</div>
+                            <div class="grid">
+                                <button class="btn" onclick="runBridge('exportAccount')">导出账号</button>
+                                <button class="btn" onclick="runBridge('importAccount')">导入账号</button>
+                                <button class="btn" onclick="runBridge('toggleCookieLogin')">Cookie登录</button>
+                                <button class="btn" onclick="runBridge('toggleCookieExport')">导出Cookie</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="resource">
+                        <div class="group">
+                            <div class="RESOURCE MODULE</div>
+                            <div class="grid">
+                                <button class="btn" onclick="runBridge('loadMaterial')">加载资源</button>
+                                <button class="btn" onclick="runBridge('extractMaterial')">解压资源</button>
+                                <button class="btn" onclick="runBridge('deleteEN')">清理资源</button>
+                                <button class="btn" onclick="runBridge('selectBranch')">选择分支</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="feature">
+                        <div class="group">
+                            <div class="group-title">VISUAL SWITCH</div>
+
+                           label class="switch-row">
+                                <span>FPS显示</span>
+                                <input type="checkbox" onchange="runBridge('FPSdisplay')">
+                                <i class="switch"></i>
+                            </label>
+
+                            <label class="switch-row">
+                                <span>X-Ray</span>
+                                <input type="checkbox" onchange="runBridge('toggleXray')">
+                                <i class="switch"></i>
+                            </label>
+
+                            <label class="switch-row">
+                                <span>夜视效果</span>
+                                <input type="checkbox" onchange="runBridge('toggleNightVision')">
+                                <i class="switch"></i>
+                            </label>
+
+                            <label class="switch-row">
+                                <span>景深效果</span>
+                                <input type="checkbox" onchange="runBridge('toggleDepthOfField')">
+                                <i class="switch"></i>
+                            </label>
+                        </div>
+
+                        <div class="group">
+                            <div class="group-title">EXTRA ACTION</div>
+                            <">
+                                <button class="btn" onclick="runBridge('toggleFreeCam')">自由视角</button>
+                                <button class="btn" onclick="runBridge('summonVehicle')">召唤坐骑</button>
+                                <button class="btn" onclick="runBridge('loadPyScript')">脚本菜单</button>
+                                <button class="btn" onclick="runBridge('autofish')">自动钓鱼</button>
+                                <button class="btn" onclick="runBridge('toggleHitEffect')">命中特效</button>
+                                <button class="btn" onclick="runBridge('toggleHeartTrail')">轨迹特效</button>
+                                <button class="btn" onclick="runBridge('openScriptLoader')">加载器</button>
+                                <button class="btn" onclick="runBridge('toggleAutoTool')">自动工具</button>
+                                <button class="btn" onclick="runBridge('startServerIpCapture')">IP捕获</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="notice" id="notice">面板已加载，等待操作...</div>
+            </div>
         </div>
-
-        <div class="content">
-            <div class="module-title">
-                <div id="moduleTitle">ACCOUNT</div>
-                <small>READY</small>
-            </div>
-
-            <div class="tab-content active" id="account">
-                <div class="group">
-                    <div class="group-title">ACCOUNT MANAGER</div>
-                    <div class="grid">
-                        <button class="btn" onclick="runBridge('exportAccount')">导出账号</button>
-                        <button class="btn" onclick="runBridge('importAccount')">导入账号</button>
-                        <button class="btn" onclick="runBridge('toggleCookieLogin')">Cookie登录</button>
-                        <button class="btn" onclick="runBridge('toggleCookieExport')">导出Cookie</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="resource">
-                <div class="group">
-                    <div class="group-title">RESOURCE MODULE</div>
-                    <div class="grid">
-                        <button class="btn" onclick="runBridge('loadMaterial')">加载资源</button>
-                        <button class="btn" onclick="runBridge('extractMaterial')">解压资源</button>
-                        <button class="btn" onclick="runBridge('toggleXray')">X-Ray</button>
-                        <button class="btn" onclick="runBridge('deleteEN')">清理EN</button>
-                        <button class="btn" onclick="runBridge('selectBranch')">选择分支</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="feature">
-                <div class="group">
-                    <div class="group-title">VISUAL / SYSTEM</div>
-                    <div class="grid">
-                        <button class="btn" onclick="runBridge('FPSdisplay')">FPS显示</button>
-                        <button class="btn" onclick="runBridge('toggleFreeCam')">自由视角</button>
-                        <button class="btn" onclick="runBridge('toggleNightVision')">夜视</button>
-                        <button class="btn" onclick="runBridge('toggleDepthOfField')">景深</button>
-                        <button class="btn" onclick="runBridge('summonVehicle')">召唤坐骑</button>
-                        <button class="btn" onclick="runBridge('loadPyScript')">脚本菜单</button>
-                        <button class="btn" onclick="runBridge('autofish')">自动钓鱼</button>
-                        <button class="btn" onclick="runBridge('toggleHitEffect')">攻击特效</button>
-                        <button class="btn" onclick="runBridge('toggleHeartTrail')">轨迹特效</button>
-                        <button class="btn" onclick="runBridge('openScriptLoader')">加载器</button>
-                        <button class="btn" onclick="runBridge('toggleAutoTool')">自动工具</button>
-                        <button class="btn" onclick="runBridge('startServerIpCapture')">IP捕获</button>
-                    </div>
-                </div>
-            </div>
-
-        </div>
     </div>
-
-    <div class="footer">
-        <div><span class="dot"></span>ONLINE</div>
-        <div id="clock">--:--:--</div>
-    </div>
-
-</div>
 </div>
 
 <script>
 const panel = document.getElementById("panel");
 const scaleWrapper = document.getElementById("scaleWrapper");
 const moduleTitle = document.getElementById("moduleTitle");
-const clock = document.getElementById("clock");
+const notice = document.getElementById("notice");
 
 function autoScale() {
     scaleWrapper.style.transform = "scale(1)";
-    const s = Math.min(
-        window.innerWidth / panel.offsetWidth * 0.92,
-        window.innerHeight / panel.offsetHeight * 0.92,
+    const scale = Math.min(
+        window.innerWidth / panel.offsetWidth * 0.94,
+        window.innerHeight / panel.offsetHeight * 0.94,
         1
     );
-    scaleWrapper.style.transform = `scale(${s})`;
+    scaleWrapper.style.transform = `scale(${scale})`;
 }
 
 function switchTab(btn, id, title) {
@@ -361,39 +435,24 @@ function switchTab(btn, id, title) {
     btn.classList.add("active");
     document.getElementById(id).classList.add("active");
     moduleTitle.innerText = title;
-
+    notice.innerText = "当前模块：" + title;
     autoScale();
 }
 
 function runBridge(method) {
-    if (!window.JsBridge) {
-        console.log("JsBridge not detected:", method);
-        return;
-    }
+    notice.innerText = "执行：" + method;
 
-    if (typeof window.JsBridge[method] !== "function") {
-        console.log("Method not found:", method);
-        return;
-    }
+    if (!window) {
+到;
+ if方法 method }
 
-    try {
-        window.JsBridge[method]();
-    } catch (e) {
-        console.log("Bridge error:", method, e);
+[ = } catch (e) {
+        notice.innerText = "执行失败：" + method;
     }
-}
-
-function updateClock() {
-    const d = new Date();
-    clock.innerText = [d.getHours(), d.getMinutes(), d.getSeconds()]
-        .map(n => String(n).padStart(2, "0"))
-        .join(":");
 }
 
 window.onload = () => {
     autoScale();
-    updateClock();
-    setInterval(updateClock, 1000);
     window.addEventListener("resize", autoScale);
 };
 </script>
